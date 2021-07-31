@@ -1,0 +1,10 @@
+dist/
+build/
+dep/
+.class
+.jar
+/Regger/nbproject/private/
+/Oldreg/nbproject/private/
+/Artifice/nbproject/private/
+/Lexer/nbproject/private/
+/JumpList/nbproject/private/
