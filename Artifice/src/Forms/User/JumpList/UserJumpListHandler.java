@@ -6,6 +6,7 @@ import Forms.CustomTableModel;
 import Forms.ListTableForm;
 import AppID.AppIDList;
 import AppID.JumpListFile;
+import CBF.CBFException;
 import Forms.AbstractKeyListener;
 import Forms.TableData;
 import Forms.TableRow;
@@ -87,7 +88,7 @@ public class UserJumpListHandler extends AbstractHandler
     }
 
     /**
-     * Creates a list of jump list files
+     * Builds the list (left-hand side of pane) with a list of jumplist files
      * 
      * @return 
      */
@@ -121,17 +122,25 @@ public class UserJumpListHandler extends AbstractHandler
         }
     }
 
+    /**
+     * Builds the table (right-hand side of pane) with data from selected jump list file
+     * 
+     * @param jlf
+     * @param index 
+     */
     private void buildTable(JumpListFile jlf, int index) {
         frame().showInfo("Loading detail for " + jlf.toString());
+        System.out.println(jlf.toString());
         String[] columns = {"Entry", "Timestamp", "NetBIOS", "Path"};
         try {
             if (jumpLists[index] == null) {
+                // create new JumpList object and add to table
                 jumpLists[index] = new JumpList(jlf.getFilename());
             }
             tableModel = new CustomTableModel(loadJumpFileTable(index), columns);
             form.getTable().setModel(tableModel);
             frame().showInfo("Loaded detail for " + jlf.toString());
-        } catch (IOException e) {
+        } catch (CBFException e) {
             frame().showErrorDialog(e.getMessage());
         }
     }

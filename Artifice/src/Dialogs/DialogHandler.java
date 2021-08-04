@@ -32,7 +32,7 @@ public class DialogHandler {
      */
     public String getRoot() {
         RootChooserPanel driveChooserPanel = new RootChooserPanel();
-        if (handleDialog(driveChooserPanel, "Select Root") == JOptionPane.OK_OPTION) {
+        if (handleDialog(driveChooserPanel, "Select path to mounted Windows image") == JOptionPane.OK_OPTION) {
             enumerateUsers(driveChooserPanel.getSelected());
             return (driveChooserPanel.getSelected());
         }

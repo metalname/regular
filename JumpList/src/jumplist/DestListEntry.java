@@ -1,8 +1,6 @@
 package jumplist;
 
-import BinBuffer.BinBuffer;
-import utils.NumFormat;
-import utils.WindowsDate;
+import java.nio.ByteBuffer;
 
 /**
  *
@@ -41,9 +39,9 @@ public abstract class DestListEntry {
         this.offset = offset;
     }
 
-    public abstract void load(BinBuffer destList);
+    public abstract void load(ByteBuffer destList);
     
-    public abstract void write(BinBuffer destList);
+    public abstract void write(ByteBuffer destList);
 
     public abstract String getNetBios();    
     
@@ -55,13 +53,13 @@ public abstract class DestListEntry {
 
     public abstract String getModDate();
 
-    protected abstract String readNetbios(BinBuffer destList);
+    protected abstract String readNetbios(ByteBuffer destList);
 
-    protected abstract void writeNetBios(BinBuffer destList, String netbios);
+    protected abstract void writeNetBios(ByteBuffer destList, String netbios);
     
-    protected abstract String readPath(BinBuffer destList);
+    protected abstract String readPath(ByteBuffer destList);
     
-    protected abstract void writePath(BinBuffer destList);
+    protected abstract void writePath(ByteBuffer destList);
     
     public abstract void setOffset(int offset);
 

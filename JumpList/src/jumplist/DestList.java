@@ -1,7 +1,8 @@
 package jumplist;
 
-import CBF.file.FileBuffer;
-import BinBuffer.BinBuffer;
+import CBF.CBF;
+import CBF.CBFException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,11 +23,10 @@ import static utils.NumFormat.numToHex;
  */
 public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry> {
 
-    private final BinBuffer buffer;
+    private final ByteBuffer buffer;
     private final List<DestListEntry> entries = new ArrayList<>();
     private int lastIndex = 0;
     private static final int headerSize = 0x20;
-    private final FileBuffer file;
 
     private int version;
     private int numEntries;
@@ -34,10 +34,8 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
     private int size;
     private boolean changed = false;
 
-    public DestList(FileBuffer file) {
-        this.file = file;
-        buffer = new BinBuffer(file.size());
-        file.get(buffer.buffer());
+    public DestList(ByteBuffer buffer) {
+        this.buffer = buffer;
     }
 
     public void load() {
@@ -59,10 +57,10 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
         buffer.putInt(numPinned);
     }
 
-    private void saveBuffer() {
-        file.truncate();
-        file.put(buffer.buffer(), size);
-    }
+    //private void saveBuffer() {
+    //    file.truncate();
+    //    file.put(buffer.buffer(), size);
+    //}
 
     public String dump() {
         StringBuilder sb = new StringBuilder();
@@ -76,13 +74,14 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
         int offset = headerSize;
         int i;
         for (i = 0; i < numEntries && buffer.hasRemaining(); i++) {
-            // check version number in headr to determine which type of DestListEntry to create
+            // check version number in header to determine which type of DestListEntry to create
             DestListEntry entry;
             switch (version) {
                 case 1:
                     entry = new DestListEntry78(offset);
                     break;
                 case 3:
+                case 4:
                     entry = new DestListEntry10(offset);
                     break;
                 default:
@@ -92,8 +91,8 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
             if (entry != null) {
                 entry.load(buffer);
                 entries.add(entry);
-            }
-            offset += entry.size();
+                offset += entry.size();
+            }            
         }
         size = offset;
     }
@@ -154,13 +153,31 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
     }
 
     public void save() {
-        writeHeader();
-        writeEntries();
-        saveBuffer();
-        file.close();
+        //writeHeader();
+        //writeEntries();
+        //saveBuffer();
+        //file.close();
     }
 
     public boolean changed() {
         return (changed);
     }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            //var cbf = new CBF("/home/metataro/7e4dca80246863e3.automaticDestinations-ms");
+            var cbf = new CBF("/home/metataro/5f7b5f1e01b83767.automaticDestinations-ms");
+            //var cbf = new CBF("/home/metataro/f01b4d95cf55d32a.automaticDestinations-ms");
+            var buffer = cbf.getStream("DestList");
+            if (buffer != null) {
+                var destList = new DestList(buffer);
+                destList.load();
+            }
+        } catch (CBFException e) {
+            System.out.println(e);
+        }
+    }    
 }

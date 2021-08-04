@@ -1,6 +1,6 @@
 package jumplist;
 
-import BinBuffer.BinBuffer;
+import java.nio.ByteBuffer;
 import utils.NumFormat;
 import utils.WindowsDate;
 
@@ -43,7 +43,7 @@ public class DestListEntry78 extends DestListEntry {
     }
 
     @Override
-    public void load(BinBuffer destList) {
+    public void load(ByteBuffer destList) {
         destList.position(offset);
         checksum = destList.getLong();
         destList.get(volumeID);
@@ -61,7 +61,7 @@ public class DestListEntry78 extends DestListEntry {
     }
 
     @Override
-    public void write(BinBuffer destList) {
+    public void write(ByteBuffer destList) {
         destList.position(offset);
         destList.putLong(checksum);
         destList.put(volumeID);
@@ -103,7 +103,7 @@ public class DestListEntry78 extends DestListEntry {
     }
 
     @Override
-    protected String readNetbios(BinBuffer destList) {
+    protected String readNetbios(ByteBuffer destList) {
         int bufpos = destList.position();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 16; i++) {
@@ -119,7 +119,7 @@ public class DestListEntry78 extends DestListEntry {
     }
 
     @Override
-    protected void writeNetBios(BinBuffer destList, String netbios) {
+    protected void writeNetBios(ByteBuffer destList, String netbios) {
         int bufpos = destList.position();
         int i;
         for (i = 0; i < netbios.length(); i++) {
@@ -132,7 +132,7 @@ public class DestListEntry78 extends DestListEntry {
     }
 
     @Override
-    protected String readPath(BinBuffer destList) {
+    protected String readPath(ByteBuffer destList) {
         //int bufpos = destList.position();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < pathSize; i++) {
@@ -147,7 +147,7 @@ public class DestListEntry78 extends DestListEntry {
     }
 
     @Override
-    protected void writePath(BinBuffer destList) {
+    protected void writePath(ByteBuffer destList) {
         for (int i = 0; i < pathSize; i++) {
             destList.putChar(path.charAt(i));
         }

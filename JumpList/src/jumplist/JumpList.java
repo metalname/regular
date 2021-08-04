@@ -1,12 +1,13 @@
 package jumplist;
 
 import CBF.CBF;
-import CBF.file.FileBuffer;
+import CBF.CBFException;
+//import CBF.file.FileBuffer;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import utils.BufferedRandomAccessFile;
 import utils.NumFormat;
 
 /**
@@ -19,15 +20,17 @@ public class JumpList {
 
     private final CBF cbf;      // jump list file are Compund Binary Files
     private DestList destList;  // DestList stream of emebedded CBF contains MRU and MFU lists and access times
+    private String filename;
     //private final ArrayList<ShlLink> shlLinks = new ArrayList<>();
 
     /**
      * Constructor
      * 
      * @param filename
-     * @throws IOException 
+     * @throws CBFException 
      */
-    public JumpList(String filename) throws IOException {
+    public JumpList(String filename) throws CBFException {
+        this.filename = filename;
         // create a CBF object for this jumplist
         cbf = new CBF(filename);
         // load data from CBF
@@ -43,10 +46,10 @@ public class JumpList {
         return (cbf);
     }
 
-    private void load() throws IOException {
+    private void load() throws CBFException {
         // a CBF contains multiple streams
         // we want the stream named DestList
-        FileBuffer dl = cbf.getStream("DestList");
+        ByteBuffer dl = cbf.getStream("DestList");
         //saveBuffer(dl, "c:/temp/destlist.dat");
         //saveBuffer(cbf.getDirectory().getBuffer(), "c:/temp/directory.dat");
         //saveBuffer(cbf.getMiniStream(), "c:/temp/ministream.dat");
@@ -62,6 +65,8 @@ public class JumpList {
             //    System.out.println(e.dump());
             //}
             //loadShlLinks();
+        } else {
+            System.out.println("Skipping file " + filename + " - empty file or no DestList");
         }
     }
 
@@ -71,8 +76,8 @@ public class JumpList {
      * @throws IOException 
      */
     public void save() throws IOException {
-        destList.save();
-        cbf.save();
+        //destList.save();
+        //cbf.save();
     }
 
     /**
@@ -81,17 +86,21 @@ public class JumpList {
      * @return 
      */
     public List<DestListEntry> getEntries() {
-        return (destList.getEntries());
+        if (destList != null) {
+            return (destList.getEntries());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
      * Load SHLLNK entries from DestList
      * @throws IOException 
      */
-    protected void loadShlLinks() throws IOException {
+    protected void loadShlLinks() throws CBFException {
         for (DestListEntry entry : destList) {
             String name = NumFormat.stripLeadingZeros(entry.getEntryNum());
-            FileBuffer stream = cbf.getStream(name);
+            ByteBuffer stream = cbf.getStream(name);
             if (stream != null) {
                 //ShlLink shlLink = new ShlLink(name, stream);
                 //shlLink.load(stream);
@@ -121,12 +130,12 @@ public class JumpList {
         return (sb.toString());
     }
 
-    public void saveBuffer(FileBuffer buffer, String filename) throws IOException {
-        BufferedRandomAccessFile raf = new BufferedRandomAccessFile(filename, "rw");
-        for (byte[] b : buffer) {
-            raf.write(b);
-        }
-        raf.close();
+    public void saveBuffer(ByteBuffer buffer, String filename) throws IOException {
+        //BufferedRandomAccessFile raf = new BufferedRandomAccessFile(filename, "rw");
+        //for (byte[] b : buffer) {
+        //    raf.write(b);
+        //}
+        //raf.close();
     }
 
     public static void saveFile(String data, String filename) {
@@ -143,13 +152,14 @@ public class JumpList {
     public void deleteEntry(String entryNum) throws IOException {
         // delete sequence:
         // delete entry from destList
-        destList.deleteEntry(entryNum);
+        //destList.deleteEntry(entryNum);
         // delete shllink entry
-        cbf.deleteStream(entryNum);
+        //cbf.deleteStream(entryNum);
     }
 
     public boolean changed() {
-        return(cbf.changed() | destList.changed());
+        return(false);
+        //return(cbf.changed() | destList.changed());
     }
     
     /*
@@ -165,20 +175,5 @@ public class JumpList {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        try {
-            JumpList jumpList = new JumpList("c:/temp/2b7046ae8c430d91.automaticDestinations-ms");
-            //jumpList.deleteEntry("1");
-            //jumpList.save();
-            int sector = 0;
-            for (String s : jumpList.getCBF().buildSectorMap()) {
-                System.out.println("Sector: " + NumFormat.numToHex(sector) + " " + s);
-                sector++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //System.out.println(cbf.getSector(0).dump());
-    }
 
 }

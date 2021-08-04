@@ -19,7 +19,12 @@ public class CustomTableModel implements TableModel {
         this.data = data;
         this.names = names;
         int rows = data.size();
-        int columns = data.get(0).size();
+        var columns = 0;
+        if (data.size() > 0) {
+            columns = data.get(0).size();
+        } else {
+            columns = 1;
+        }
         editFlags = new boolean[rows][columns];
     }    
 

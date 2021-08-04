@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 /**
  *
- * Jump list are named in the format: AppID.automaticDestinations-ms or AppID.customDestinations-ms
+ * Jump list files are named in the format: AppID.automaticDestinations-ms or AppID.customDestinations-ms
  * AppID is a 16-digit hexadecimal number calculated by Windows that identifies the application
  * that the jump list belongs to
  * See StaticAppID for a list of known application id numbers
@@ -30,7 +30,7 @@ public class AppIDList {
         // $USER\AppData\Roaming\Microsoft\Windows\CustomDestinations
         var jlf = new ArrayList<JumpListFile>();        
         appendFiles(userPath + "/AppData/Roaming/Microsoft/Windows/Recent/AutomaticDestinations/", jlf);
-        appendFiles(userPath + "/AppData/Roaming/Microsoft/Windows/Recent/CustomDestinations/", jlf);
+        //appendFiles(userPath + "/AppData/Roaming/Microsoft/Windows/Recent/CustomDestinations/", jlf);
         return(jlf);
     }
     
