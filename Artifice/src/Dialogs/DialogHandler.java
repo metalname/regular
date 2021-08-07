@@ -3,6 +3,7 @@ package Dialogs;
 import Forms.MainFrame;
 import Paths.Paths;
 import java.io.File;
+import java.io.FileFilter;
 import javax.swing.JOptionPane;
 
 /**
@@ -47,10 +48,11 @@ public class DialogHandler {
     private void enumerateUsers(String drive) {
         String path = drive + Paths.Users;
         File fd = new File(drive + Paths.Users);
-        if (fd.listFiles() != null) {
-            users = new String[fd.listFiles().length];
-            for (int i = 0; i < fd.listFiles().length; i++) {
-                users[i] = fd.listFiles()[i].getName();
+        var files = fd.listFiles(file -> file.isDirectory());
+        if (files != null) {
+            users = new String[files.length];
+            for (int i = 0; i < files.length; i++) {
+                users[i] = files[i].getName();
             }
         } else {
             frame.showErrorDialog("No user folders under " + path);

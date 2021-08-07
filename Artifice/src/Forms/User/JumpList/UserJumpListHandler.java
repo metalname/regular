@@ -132,7 +132,7 @@ public class UserJumpListHandler extends AbstractHandler
      */
     private void buildTable(JumpListFile jlf, int index) {
         frame().showInfo("Loading detail for " + jlf.toString());
-        System.out.println(jlf.toString());
+        //System.out.println(jlf.toString());
         String[] columns = {"Entry", "Timestamp", "NetBIOS", "Path"};
         try {
             if (jumpLists[index] == null) {
