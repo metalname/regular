@@ -98,7 +98,7 @@ public class LogFile {
         // write out any remaning lines
         while (line < buffer.size()) {
             writer.write(buffer.get(line++));
-            writer.newLine();
+            writer.write("\r\n");
         }
         writer.close();
         deletedSections.clear();
