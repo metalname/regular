@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"BinBuffer"},{"l":"BinBuffer.Unpacker"},{"l":"BinBuffer.Var"},{"l":"BinBuffer.VarSet"},{"l":"common"},{"l":"hexedit"},{"l":"InputHelpers"},{"l":"utils"}]

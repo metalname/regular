@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import jumplist.JumpList;
@@ -62,6 +63,7 @@ public class UserJumpListHandler extends AbstractHandler
     public boolean show() {
         if (getUser()) {
             form = new ListTableForm(title, this);
+            form.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             if (buildList()) {
                 dialogHandler.frame().getDesktopPane().add(form);
                 form.getTable().addKeyListener(this);

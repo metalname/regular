@@ -169,8 +169,9 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
     public static void main(String[] args) {
         try {
             //var cbf = new CBF("/home/metataro/7e4dca80246863e3.automaticDestinations-ms");
-            var cbf = new CBF("/home/metataro/5f7b5f1e01b83767.automaticDestinations-ms");
+            //var cbf = new CBF("/home/metataro/5f7b5f1e01b83767.automaticDestinations-ms");
             //var cbf = new CBF("/home/metataro/f01b4d95cf55d32a.automaticDestinations-ms");
+            var cbf = new CBF("/home/metataro/a52b0784bd667468.automaticDestinations-ms");
             var buffer = cbf.getStream("DestList");
             if (buffer != null) {
                 var destList = new DestList(buffer);

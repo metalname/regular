@@ -32,7 +32,12 @@ public class CBFSectorList {
         var position = (sector + offset) * sectorSize;
         buffer.position(position);
         byte[] b = new byte[sectorSize];
-        buffer.get(b);
+        // check if at the last sector - prevent buffer underflow
+        if ((buffer.capacity() - position) < sectorSize) {
+            buffer.get(b, 0, buffer.capacity() - position);
+        } else {
+            buffer.get(b);
+        }
         return(b);
     }
     

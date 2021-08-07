@@ -75,7 +75,7 @@ public class CBF {
     private void init() throws CBFException {
         // load header
         header = new CBFHeader(buffer, filename);
-        System.out.println(header.dump());
+        //System.out.println(header.dump());
 
         // set flags
         hasDIFAT = header.getCountDIFATSectors() > 0;
@@ -110,9 +110,9 @@ public class CBF {
     private void createFAT() throws CBFException {
         var sectorSize = header.getSectorSize();
         // create a buffer from the DIFAT sectors
-        byte[] b = new byte[(header.getCountDIFATSectors() + 1) * sectorSize];
+        byte[] b = new byte[(header.getCountFATSectors()) * sectorSize];
 
-        for (int i = 0; i < header.getCountDIFATSectors() + 1; i++) {
+        for (int i = 0; i < header.getCountFATSectors(); i++) {
             System.arraycopy(sectorList.get(header.getDIFAT()[i]).array(), 0, b, i * sectorSize, sectorSize);
         }
         // create a FAT handler
@@ -201,11 +201,15 @@ public class CBF {
         var entry = directory.getEntryByName(name);
         if (entry != null) {
             // check stream size to dtermine if it is located in FAT or miniFAT
-            var size = entry.getStreamSize();
-            if (size < header.getMiniStreamCutoffSize()) {
-                return (getBufferForMiniSector(entry.getStartSect()));
+            if (entry.getStreamSize() > 0) {
+                var size = entry.getStreamSize();
+                if (size < header.getMiniStreamCutoffSize() && hasMiniStream) {
+                    return (getBufferForMiniSector(entry.getStartSect()));
+                } else {
+                    return (getBufferForSector(entry.getStartSect()));
+                }
             } else {
-                return (getBufferForSector(entry.getStartSect()));
+                System.out.println("Warning - could not load DestList for " + filename + ": zero-length file");
             }
         }
         return (null);
