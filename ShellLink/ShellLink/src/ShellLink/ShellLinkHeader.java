@@ -23,19 +23,20 @@ public class ShellLinkHeader {
     private int showCommand;
     private short hotKey;
     private final byte[] reserved = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    private byte[] idList;
     
-    public ShellLinkHeader(ByteBuffer buffer, int offset) {
+    private ShellLinktargetIDList idList;
+    
+    public ShellLinkHeader(ByteBuffer buffer, int offset) throws ShellLinkException {
         this.buffer = buffer;
         this.offset = offset;
         load();
     }
     
-    public ShellLinkHeader(ByteBuffer buffer) {
+    public ShellLinkHeader(ByteBuffer buffer) throws ShellLinkException {
         this(buffer, 0);
     }
     
-    private void load() {
+    private void load() throws ShellLinkException {
         buffer.position(offset);
         headerSize = buffer.getInt();
         buffer.get(CLSID);
@@ -45,22 +46,23 @@ public class ShellLinkHeader {
         buffer.get(accessTime);
         buffer.get(writeTime);
         fileSize = buffer.getInt();
+        iconIndex = buffer.getInt();
         showCommand = buffer.getInt();
         hotKey = buffer.getShort();
+        buffer.get(reserved);
         
         // if HasLinkTargetIDList is set, ID list follows header
         if (hasLinkFlags(ShellLinkFlags.HasLinkTargetIDList)) {
-            
+            loadIdList();
         }
     }
     
     /**
      * Load the ID List
      */
-    private void loadIdList() {
+    private void loadIdList() throws ShellLinkException {
         short idListSize = buffer.getShort();
-        idList = new byte[idListSize];
-        buffer.get(idList);
+        idList = new ShellLinktargetIDList(buffer, buffer.position(), idListSize);
     }
     
     /**

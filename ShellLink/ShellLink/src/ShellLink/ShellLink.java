@@ -16,12 +16,12 @@ public class ShellLink {
     private final ByteBuffer buffer;
     private ShellLinkHeader header;
     
-    public ShellLink(ByteBuffer buffer) {
+    public ShellLink(ByteBuffer buffer) throws ShellLinkException {
         this.buffer = buffer;
         load();
     }
     
-    private void load() {
+    private void load() throws ShellLinkException {
         header = new ShellLinkHeader(buffer);
         System.out.println(header.listFlags());
         System.out.println(header.listAttributes());
