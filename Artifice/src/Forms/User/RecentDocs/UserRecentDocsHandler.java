@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Forms.User.RecentDocs;
 
 import Dialogs.DialogHandler;
@@ -27,7 +22,7 @@ import registry.RegistryHive;
 
 /**
  *
- * @author 
+ * Handler for "Recent Docs" (from Registry)
  */
 public class UserRecentDocsHandler extends AbstractHandler
         implements AbstractKeyListener, TableMouseListener, ActionListener, MessageHandler {
@@ -41,6 +36,11 @@ public class UserRecentDocsHandler extends AbstractHandler
     private final String title = "Recent Docs";
     private GroupRecord currentGroup;
 
+    /**
+     * Constructor
+     * 
+     * @param dialogHandler 
+     */
     public UserRecentDocsHandler(DialogHandler dialogHandler) {
         super(dialogHandler);
         inputHandler = new InputHandler(dialogHandler.frame());
@@ -147,7 +147,7 @@ public class UserRecentDocsHandler extends AbstractHandler
 
     private void loadTable(GroupRecord gr) {
         TableData data = new TableData();
-        // records are stored in revrse MRU
+        // records are stored in reverse MRU
         // read list in reverse
         try {
             for (int i = gr.records().size() - 1; i >= 0; i--) {

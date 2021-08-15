@@ -2,10 +2,14 @@ package jumplist;
 
 import CBF.CBF;
 import CBF.CBFException;
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import static utils.NumFormat.numToHex;
 
 /**
@@ -21,11 +25,11 @@ import static utils.NumFormat.numToHex;
  * Header Structure 00 - 03 INT4 Version 04 - 07 INT4 Number of Entries 08 - 0b
  * INT4 Number of Pinned Entries
  */
-public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry> {
+public class DestList implements Iterable<DestListEntry> {
 
     private final ByteBuffer buffer;
     private final List<DestListEntry> entries = new ArrayList<>();
-    private int lastIndex = 0;
+    //private int lastIndex = 0;
     private static final int headerSize = 0x20;
 
     private int version;
@@ -61,7 +65,6 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
     //    file.truncate();
     //    file.put(buffer.buffer(), size);
     //}
-
     public String dump() {
         StringBuilder sb = new StringBuilder();
         sb.append("Version: " + version).append("\n");
@@ -92,7 +95,7 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
                 entry.load(buffer);
                 entries.add(entry);
                 offset += entry.size();
-            }            
+            }
         }
         size = offset;
     }
@@ -137,19 +140,20 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
     }
 
     @Override
-    public boolean hasNext() {
-        return (lastIndex < entries.size());
-    }
-
-    @Override
-    public DestListEntry next() {
-        return (entries.get(lastIndex++));
-    }
-
-    @Override
     public Iterator<DestListEntry> iterator() {
-        lastIndex = 0;
-        return (this);
+        return (new Iterator<DestListEntry>() {
+            int lastIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return (lastIndex < entries.size());
+            }
+
+            @Override
+            public DestListEntry next() {
+                return (entries.get(lastIndex++));
+            }
+        });
     }
 
     public void save() {
@@ -162,23 +166,46 @@ public class DestList implements Iterator<DestListEntry>, Iterable<DestListEntry
     public boolean changed() {
         return (changed);
     }
-    
+
     /**
      * @param args the command line arguments
      */
+    /**
+     * public static void main(String[] args) { try { //var cbf = new
+     * CBF("/home/metataro/7e4dca80246863e3.automaticDestinations-ms"); //var
+     * cbf = new
+     * CBF("/home/metataro/5f7b5f1e01b83767.automaticDestinations-ms"); //var
+     * cbf = new
+     * CBF("/home/metataro/f01b4d95cf55d32a.automaticDestinations-ms"); var cbf
+     * = new CBF("/home/metataro/9fda41b86ddcf1db.automaticDestinations-ms");
+     * for (var entry : cbf.listFiles()) { System.out.println(entry.getName());
+     * } var buffer = cbf.getStream("DestList"); if (buffer != null) { var
+     * destList = new DestList(buffer); destList.load(); for (var entry:
+     * destList) { System.out.println(entry.getEntryNum() + ": " +
+     * entry.getPath() + " (" + entry.getNetBios() + ")"); } } } catch
+     * (CBFException e) { System.out.println(e); } }
+     */
     public static void main(String[] args) {
-        try {
-            //var cbf = new CBF("/home/metataro/7e4dca80246863e3.automaticDestinations-ms");
-            //var cbf = new CBF("/home/metataro/5f7b5f1e01b83767.automaticDestinations-ms");
-            //var cbf = new CBF("/home/metataro/f01b4d95cf55d32a.automaticDestinations-ms");
-            var cbf = new CBF("/home/metataro/a52b0784bd667468.automaticDestinations-ms");
-            var buffer = cbf.getStream("DestList");
-            if (buffer != null) {
-                var destList = new DestList(buffer);
-                destList.load();
+        try (POIFSFileSystem fs = new POIFSFileSystem(new File("/home/metataro/9fda41b86ddcf1db.automaticDestinations-ms"))) {
+            var root = fs.getRoot();
+            for (var entry : root) {
+                System.out.println(entry.getName());
             }
-        } catch (CBFException e) {
+            var file = fs.createDocumentInputStream("DestList");
+            byte[] b = new byte[file.available()];
+            file.read(b);
+            file.close();
+            var buffer = ByteBuffer.wrap(b);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            var destList = new DestList(buffer);
+            destList.load();
+            for (var entry : destList) {
+                System.out.println(entry.getEntryNum() + ": " + entry.getPath() + " (" + entry.getNetBios() + ")");
+            }
+        } catch (IOException e) {
             System.out.println(e);
+            // an I/O error occurred, or the File did not provide a compatible
+            // POIFS data structure
         }
-    }    
+    }
 }

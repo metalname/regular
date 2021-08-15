@@ -124,5 +124,8 @@ public class Directory {
         return(null);
     }
     
+    public ArrayList<DirectoryEntry> getEntries() {
+        return(entries);
+    }
     
 }

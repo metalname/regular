@@ -1,10 +1,12 @@
 package CBF;
 
 import CBF.Directory.Directory;
+import CBF.Directory.DirectoryEntry;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
 
 /**
  *
@@ -197,6 +199,13 @@ public class CBF {
         }
     }
 
+    /**
+     * Return buffer for requested stream name
+     * 
+     * @param name
+     * @return
+     * @throws CBFException 
+     */
     public ByteBuffer getStream(String name) throws CBFException {
         var entry = directory.getEntryByName(name);
         if (entry != null) {
@@ -215,4 +224,7 @@ public class CBF {
         return (null);
     }
 
+    public List<DirectoryEntry> listFiles() {
+        return(directory.getEntries());
+    }
 }
