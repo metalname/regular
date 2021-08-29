@@ -15,6 +15,7 @@ public class ShellLink {
     
     private final ByteBuffer buffer;
     private ShellLinkHeader header;
+    private ShellLinkInfo linkInfo;
     
     public ShellLink(ByteBuffer buffer) throws ShellLinkException {
         this.buffer = buffer;
@@ -25,14 +26,44 @@ public class ShellLink {
         header = new ShellLinkHeader(buffer);
         System.out.println(header.listFlags());
         System.out.println(header.listAttributes());
+        if (header.hasLinkFlags(ShellLinkFlags.HasLinkInfo)) {
+            linkInfo = new ShellLinkInfo(buffer, buffer.position());
+        }
     }
+    
+    public static String loadASCIIString(ByteBuffer buffer, int offset) {
+        buffer.position(offset);
+        var sb = new StringBuilder();
+        int ch = 0;
+        do {
+            ch = buffer.get();
+            if (ch != 0) {
+                sb.append((char) ch);
+            }
+        } while (ch != 0);
+        return (sb.toString());
+    }
+    
+    public static String loadUNICODEString(ByteBuffer buffer, int offset) {
+        buffer.position(offset);
+        var sb = new StringBuilder();
+        int ch = 0;
+        do {
+            ch = buffer.getShort();
+            if (ch != 0) {
+                sb.append((char) ch);
+            }
+        } while (ch != 0);
+        return (sb.toString());
+    }
+    
     
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         try {
-            try (RandomAccessFile raf = new RandomAccessFile("/home/metataro/100CANON.lnk", "r")) {
+            try (RandomAccessFile raf = new RandomAccessFile("/home/metataro/14668049.pdf.lnk", "r")) {
                 var b = new byte[(int) raf.length()];
                 raf.read(b);
                 var buffer = ByteBuffer.wrap(b);
