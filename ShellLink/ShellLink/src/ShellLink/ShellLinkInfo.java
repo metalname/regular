@@ -21,14 +21,17 @@ public class ShellLinkInfo {
     private int localBasePathOffset;                // offset to base path
     private int commonNetworkRelativeLinkOffset;    // offset to CommonNetworkRelativeLink structure
     private int commonPathSuffixOffset;             // offset to CommonPathSuffix structure
-    private int localBasePathOffsetUnicode;         // offset to UNICODE version of local base path
-    private int commonPathSuffixOffsetUnicode;      // offset to UNICODE version of CommonNetworkRelativeLink structure
+    private int localBasePathOffsetUnicode = 0;     // offset to UNICODE version of local base path
+    private int commonPathSuffixOffsetUnicode = 0;  // offset to UNICODE version of CommonNetworkRelativeLink structure
     
     private boolean hasVolumeIDAndLocalBasePath = false;        // indicates presence or absence of VolumeID and LocalbasePath fields
     private boolean unicodeVolumeIDAndLocalBasePath = false;    // indicates if the above fields are UNICODE
+    private boolean hasCommonNetworkRelativeLink = false;
     
     private ShellLinkVolumeID volumeID;
     private String localBasePath;
+    private ShellLinkCommonNetworkRelativeLink commonNetworkRelativeLink;
+    private String commonPathSuffix;
     
     public ShellLinkInfo(ByteBuffer buffer, int offset) {
         this.buffer = buffer;
@@ -55,6 +58,8 @@ public class ShellLinkInfo {
         }
         loadVolumeID();
         loadLocalBasePath();
+        loadCommonNetworkRelativeLink();
+        loadCommonPathSuffix();
     }
     
     /**
@@ -70,6 +75,7 @@ public class ShellLinkInfo {
         if (hasVolumeIDAndLocalBasePath) {
             unicodeVolumeIDAndLocalBasePath = (linkInfoHeaderSize >= 0x24);
         }
+        hasCommonNetworkRelativeLink = ((linkInfoFlags & FLAG_CommonNetworkRelativeLinkAndPathSuffix) != 0);
     }
     
     /**
@@ -85,9 +91,23 @@ public class ShellLinkInfo {
         if (hasVolumeIDAndLocalBasePath) {
             if (unicodeVolumeIDAndLocalBasePath && (localBasePathOffsetUnicode > 0)) {
                 localBasePath = ShellLink.loadUNICODEString(buffer, offset + localBasePathOffsetUnicode);
-            } else {
+            } else if (localBasePathOffset > 0) {
                 localBasePath = ShellLink.loadASCIIString(buffer, offset + localBasePathOffset);
             }
+        }
+    }
+    
+    private void loadCommonNetworkRelativeLink() {
+        if (hasCommonNetworkRelativeLink) {
+            commonNetworkRelativeLink = new ShellLinkCommonNetworkRelativeLink(buffer, offset + commonNetworkRelativeLinkOffset);
+        }
+    }
+    
+    private void loadCommonPathSuffix() {
+        if (commonPathSuffixOffsetUnicode > 0) {
+            commonPathSuffix = ShellLink.loadUNICODEString(buffer, offset + commonPathSuffixOffsetUnicode);
+        } else if (commonPathSuffixOffset > 0) {
+            commonPathSuffix = ShellLink.loadASCIIString(buffer, offset + commonPathSuffixOffset);
         }
     }
 }

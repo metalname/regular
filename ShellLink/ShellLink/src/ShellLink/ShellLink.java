@@ -16,6 +16,7 @@ public class ShellLink {
     private final ByteBuffer buffer;
     private ShellLinkHeader header;
     private ShellLinkInfo linkInfo;
+    private ShellLinkStringData stringData;
     
     public ShellLink(ByteBuffer buffer) throws ShellLinkException {
         this.buffer = buffer;
@@ -29,34 +30,33 @@ public class ShellLink {
         if (header.hasLinkFlags(ShellLinkFlags.HasLinkInfo)) {
             linkInfo = new ShellLinkInfo(buffer, buffer.position());
         }
+        stringData = new ShellLinkStringData(buffer, buffer.position(), header);
     }
     
     public static String loadASCIIString(ByteBuffer buffer, int offset) {
-        buffer.position(offset);
-        var sb = new StringBuilder();
-        int ch = 0;
-        do {
-            ch = buffer.get();
-            if (ch != 0) {
-                sb.append((char) ch);
-            }
-        } while (ch != 0);
-        return (sb.toString());
+        return (loadString(buffer, offset, false));    
     }
     
     public static String loadUNICODEString(ByteBuffer buffer, int offset) {
+        return (loadString(buffer, offset, true));
+    }
+    
+    public static String loadString(ByteBuffer buffer, int offset, boolean isUnicode) {
         buffer.position(offset);
         var sb = new StringBuilder();
         int ch = 0;
         do {
-            ch = buffer.getShort();
+            if (isUnicode) {
+                ch = buffer.getShort();
+            } else {
+                ch = buffer.get();
+            }
             if (ch != 0) {
                 sb.append((char) ch);
             }
         } while (ch != 0);
-        return (sb.toString());
+        return (sb.toString());        
     }
-    
     
     /**
      * @param args the command line arguments
